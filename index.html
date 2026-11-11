@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบแจ้งซ่อมออนไลน์ - อาคารกิจกรรมนักศึกษา</title>
+  
+  <!-- Google Fonts: Prompt -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  
+  <!-- SweetAlert2 CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-dark: #1d4ed8;
+      --secondary-color: #64748b;
+      --bg-light: #f1f5f9;
+      --card-radius: 16px;
+    }
+
+    body {
+      font-family: 'Prompt', sans-serif;
+      background-color: var(--bg-light);
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Navbar & Header */
+    .app-header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      color: white;
+      padding: 2rem 0 3.5rem;
+      margin-bottom: -2rem;
+      border-bottom-left-radius: 30px;
+      border-bottom-right-radius: 30px;
+      box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 900px;
+      margin: 0 auto 3rem;
+      z-index: 10;
+    }
+
+    /* Card Styling */
+    .custom-card {
+      background: #ffffff;
+      border-radius: var(--card-radius);
+      border: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    /* Form Controls */
+    .form-label {
+      font-weight: 500;
+      color: #334155;
+      margin-bottom: 0.4rem;
+    }
+    .required-star {
+      color: #ef4444;
+      margin-left: 2px;
+    }
+    .form-control, .form-select {
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+      border: 1.5px solid #cbd5e1;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Urgency Radio Cards */
+    .urgency-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .urgency-option input[type="radio"] {
+      display: none;
+    }
+    .urgency-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fff;
+    }
+    .urgency-card i {
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+      display: block;
+    }
+    /* Normal */
+    .urgency-option input[value="ปกติ"]:checked + .urgency-card {
+      border-color: #10b981;
+      background-color: #ecfdf5;
+      color: #065f46;
+      font-weight: 600;
+    }
+    /* Medium */
+    .urgency-option input[value="ปานกลาง"]:checked + .urgency-card {
+      border-color: #f59e0b;
+      background-color: #fffbeb;
+      color: #92400e;
+      font-weight: 600;
+    }
+    /* High */
+    .urgency-option input[value="สูง"]:checked + .urgency-card {
+      border-color: #ef4444;
+      background-color: #fef2f2;
+      color: #991b1b;
+      font-weight: 600;
+    }
+
+    /* Image Upload Box */
+    .upload-box {
+      border: 2px dashed #94a3b8;
+      border-radius: 14px;
+      padding: 2rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      background-color: #f8fafc;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .upload-box:hover {
+      border-color: var(--primary-color);
+      background-color: #eff6ff;
+    }
+    .upload-box.has-image {
+      border-style: solid;
+      border-color: #10b981;
+      padding: 1rem;
+    }
+    #imagePreview {
+      max-height: 260px;
+      max-width: 100%;
+      border-radius: 10px;
+      object-fit: contain;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Submit Button */
+    .btn-submit {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 0.85rem 1.5rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s;
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+      color: white;
+    }
+    .btn-submit:disabled {
+      background: #94a3b8;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 576px) {
+      .app-header {
+        padding: 1.5rem 0 2.5rem;
+      }
+      .nav-pills .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header class="app-header">
+    <div class="container text-center">
+      <h2 class="fw-bold mb-1">
+        <i class="fa-solid fa-screwdriver-wrench me-2"></i>ระบบแจ้งซ่อมออนไลน์
+      </h2>
+      <p class="mb-0 opacity-75">อาคารกิจกรรมนักศึกษา (Student Activity Building)</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container main-container">
+    <div class="custom-card p-3 p-md-4">
+      
+      <!-- ==================== REPAIR FORM ==================== -->
+      <form id="repairForm" novalidate>
+        <div class="row g-3">
+              
+              <!-- 1. ชื่อ-สกุล ผู้แจ้ง -->
+              <div class="col-md-6">
+                <label for="reporterName" class="form-label">
+                  <i class="fa-solid fa-user text-primary me-1"></i> ชื่อ-สกุล ผู้แจ้ง <span class="required-star">*</span>
+                </label>
+                <input type="text" class="form-control" id="reporterName" name="reporterName" placeholder="ระบุชื่อ-นามสกุลจริง" required>
+                <div class="invalid-feedback">กรุณาระบุชื่อ-สกุลผู้แจ้ง</div>
+              </div>
+
+              <!-- 2. เบอร์มือถือ 10 หลัก -->
+              <div class="col-md-6">
+                <label for="phone" class="form-label">
+                  <i class="fa-solid fa-phone text-primary me-1"></i> เบอร์มือถือ (ตัวเลข 10 หลักเท่านั้น) <span class="required-star">*</span>
+                </label>
+                <input type="tel" class="form-control" id="phone" name="phone" placeholder="กรอกตัวเลข 10 หลัก เช่น 0812345678" pattern="^[0-9]{10}$" minlength="10" maxlength="10" inputmode="numeric" required>
+                <div class="invalid-feedback">กรุณากรอกเบอร์มือถือเป็นตัวเลขให้ครบ 10 หลักเท่านั้น</div>
+              </div>
+
+              <!-- 3. ห้องที่ต้องการแจ้ง -->
+              <div class="col-md-6">
+                <label for="room" class="form-label">
+                  <i class="fa-solid fa-door-open text-primary me-1"></i> ห้อง / สถานที่ที่ต้องการแจ้ง <span class="required-star">*</span>
+                </label>
+                <input type="text" class="form-control" id="room" name="room" placeholder="เช่น ห้องชมรม..." required>
+                <div class="invalid-feedback">กรุณาระบุห้องหรือสถานที่ที่ต้องการแจ้งซ่อม</div>
+              </div>
+
+              <!-- 4. ครุภัณฑ์ที่ชำรุด -->
+              <div class="col-md-6">
+                <label for="equipment" class="form-label">
+                  <i class="fa-solid fa-plug-circle-exclamation text-primary me-1"></i> ครุภัณฑ์ที่ชำรุด <span class="required-star">*</span>
+                </label>
+                <input type="text" class="form-control" id="equipment" name="equipment" placeholder="พิมพ์ชื่อครุภัณฑ์ที่ชำรุด เช่น แอร์, หลอดไฟ, พัดลม" required>
+                <div class="invalid-feedback">กรุณาระบุครุภัณฑ์ที่ชำรุด</div>
+              </div>
+
+              <!-- 5. รายละเอียดอาการชำรุด -->
+              <div class="col-12">
+                <label for="details" class="form-label">
+                  <i class="fa-solid fa-clipboard-list text-primary me-1"></i> รายละเอียดอาการชำรุด <span class="required-star">*</span>
+                </label>
+                <textarea class="form-control" id="details" name="details" rows="3" placeholder="อธิบายลักษณะอาการชำรุด เช่น แอร์ไม่เย็นมีน้ำหยด, ไฟกะพริบติดๆ ดับๆ ฯลฯ" required></textarea>
+                <div class="invalid-feedback">กรุณาระบุรายละเอียดอาการชำรุด</div>
+              </div>
+
+              <!-- 6. ระดับความเร่งด่วน -->
+              <div class="col-12">
+                <label class="form-label">
+                  <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i> ระดับความเร่งด่วน <span class="required-star">*</span>
+                </label>
+                <div class="urgency-selector">
+                  <label class="urgency-option">
+                    <input type="radio" name="urgency" value="ปกติ" required checked>
+                    <div class="urgency-card">
+                      <i class="fa-solid fa-circle-check text-success"></i>
+                      <span>ปกติ</span>
+                    </div>
+                  </label>
+                  <label class="urgency-option">
+                    <input type="radio" name="urgency" value="ปานกลาง" required>
+                    <div class="urgency-card">
+                      <i class="fa-solid fa-clock text-warning"></i>
+                      <span>ปานกลาง</span>
+                    </div>
+                  </label>
+                  <label class="urgency-option">
+                    <input type="radio" name="urgency" value="สูง" required>
+                    <div class="urgency-card">
+                      <i class="fa-solid fa-fire-flame-curved text-danger"></i>
+                      <span>สูง (ด่วนมาก)</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- 7. แนบรูปภาพ (แปลงเป็น Base64 เก็บใน hidden input) -->
+              <div class="col-12">
+                <label class="form-label">
+                  <i class="fa-solid fa-camera text-primary me-1"></i> รูปภาพประกอบจุดที่ชำรุด <span class="required-star">*</span>
+                </label>
+                
+                <!-- File Input ซ่อนไว้ แต่สั่งคลิกผ่าน Upload Box -->
+                <input type="file" id="imageFileInput" accept="image/*" class="d-none">
+                
+                <!-- Hidden Inputs สำหรับเก็บ Base64, ชื่อไฟล์ และ MimeType -->
+                <input type="hidden" id="imageBase64" name="imageBase64" required>
+                <input type="hidden" id="imageFileName" name="imageFileName">
+                <input type="hidden" id="imageMimeType" name="imageMimeType">
+
+                <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageFileInput').click()">
+                  <div id="uploadPlaceholder">
+                    <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary mb-2"></i>
+                    <h6 class="fw-semibold mb-1">คลิกเพื่อเลือกรูปภาพ หรือถ่ายภาพ</h6>
+                    <p class="text-muted small mb-0">รองรับไฟล์ JPG, PNG (ระบบจะย่อขนาดอัตโนมัติเพื่อความรวดเร็ว)</p>
+                  </div>
+                  
+                  <div id="previewContainer" class="d-none">
+                    <img id="imagePreview" src="" alt="Preview" class="mb-2">
+                    <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                      <span id="fileNameDisplay" class="badge bg-secondary text-truncate" style="max-width: 220px;"></span>
+                      <button type="button" class="btn btn-sm btn-outline-danger" id="removeImageBtn">
+                        <i class="fa-solid fa-trash-can me-1"></i> เปลี่ยนรูป
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div id="imageErrorMsg" class="text-danger small mt-1 d-none">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i> กรุณาแนบรูปภาพจุดที่ชำรุดก่อนส่งข้อมูล
+                </div>
+              </div>
+
+              <!-- ปุ่ม Submit -->
+              <div class="col-12 mt-4">
+                <button type="submit" id="submitBtn" class="btn btn-submit w-100">
+                  <i class="fa-solid fa-paper-plane me-2"></i> ส่งข้อมูลแจ้งซ่อม
+                </button>
+              </div>
+
+            </div>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-auto py-3 text-center text-muted small">
+    <div class="container">
+      © ระบบแจ้งซ่อมออนไลน์ อาคารกิจกรรมนักศึกษา | ฝ่ายพัฒนากิจกรรมสร้างสรรค์ ศสพน.
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- SweetAlert2 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    /**
+     * ============================================================================
+     * ตั้งค่า Web App URL ของ Google Apps Script (สำหรับกรณีรันบน GitHub Pages)
+     * ============================================================================
+     * ให้นำ Web App URL ที่ได้จากการกด Deploy บน Google Apps Script (ลงท้ายด้วย /exec) มาวางที่นี่
+     */
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwziDdOOl_UKrAMTHjlL4lT1rTCz3d-lpFZmImhvF-JUdvgvq6j0_4M4cn8KmsND0xV/exec';
+
+    /**
+     * ============================================================================
+     * 1. IMAGE UPLOAD, PREVIEW & BASE64 CONVERSION (พร้อมย่อขนาดด้วย Canvas)
+     * ============================================================================
+     */
+    const imageFileInput = document.getElementById('imageFileInput');
+    const imageBase64Input = document.getElementById('imageBase64');
+    const imageFileNameInput = document.getElementById('imageFileName');
+    const imageMimeTypeInput = document.getElementById('imageMimeType');
+    const uploadBox = document.getElementById('uploadBox');
+    const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const removeImageBtn = document.getElementById('removeImageBtn');
+    const imageErrorMsg = document.getElementById('imageErrorMsg');
+
+    imageFileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ไฟล์ไม่ถูกต้อง',
+          text: 'กรุณาเลือกไฟล์รูปภาพ (JPG, PNG) เท่านั้น',
+          confirmButtonColor: '#2563eb'
+        });
+        resetImageUpload();
+        return;
+      }
+
+      // ใช้ FileReader และ Canvas ย่อขนาดภาพไม่ให้เกิน 1280px เพื่อความรวดเร็วในการส่งเข้า GAS
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const MAX_WIDTH = 1280;
+          const MAX_HEIGHT = 1280;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // แปลงเป็น Base64 (JPEG คุณภาพ 85%)
+          const mimeType = 'image/jpeg';
+          const dataUrl = canvas.toDataURL(mimeType, 0.85);
+
+          // เก็บค่าลงใน Hidden Input
+          imageBase64Input.value = dataUrl;
+          imageFileNameInput.value = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+          imageMimeTypeInput.value = mimeType;
+
+          // แสดงผล Preview
+          imagePreview.src = dataUrl;
+          fileNameDisplay.textContent = file.name;
+          uploadPlaceholder.classList.add('d-none');
+          previewContainer.classList.remove('d-none');
+          uploadBox.classList.add('has-image');
+          imageErrorMsg.classList.add('d-none');
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // ปุ่มลบรูป / เปลี่ยนรูป
+    removeImageBtn.addEventListener('click', function(e) {
+      e.stopPropagation(); // ป้องกันไม่ให้ไปทริกเกอร์คลิกที่ uploadBox ซ้ำ
+      resetImageUpload();
+    });
+
+    function resetImageUpload() {
+      imageFileInput.value = '';
+      imageBase64Input.value = '';
+      imageFileNameInput.value = '';
+      imageMimeTypeInput.value = '';
+      imagePreview.src = '';
+      uploadPlaceholder.classList.remove('d-none');
+      previewContainer.classList.add('d-none');
+      uploadBox.classList.remove('has-image');
+    }
+
+    /**
+     * ============================================================================
+     * 2. FORM VALIDATION & SUBMISSION (เชื่อมต่อ Google Apps Script จริง)
+     * ============================================================================
+     */
+    const repairForm = document.getElementById('repairForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const phoneInput = document.getElementById('phone');
+
+    // บังคับให้ช่องเบอร์โทรพิมพ์ได้เฉพาะตัวเลขเท่านั้น และจำกัดไม่เกิน 10 ตัว
+    phoneInput.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '').slice(0, 10);
+    });
+
+    phoneInput.addEventListener('keydown', function(e) {
+      const allowedKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+      if (allowedKeys.includes(e.key) || e.ctrlKey || e.metaKey) {
+        return;
+      }
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    repairForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      // ตรวจสอบเบอร์มือถือต้องเป็นตัวเลขครบ 10 หลักเท่านั้น
+      const phoneVal = phoneInput.value.trim();
+      const isPhoneValid = /^[0-9]{10}$/.test(phoneVal);
+      if (!isPhoneValid) {
+        phoneInput.setCustomValidity('กรุณากรอกเบอร์มือถือเป็นตัวเลขให้ครบ 10 หลักเท่านั้น');
+      } else {
+        phoneInput.setCustomValidity('');
+      }
+
+      // ตรวจสอบรูปภาพใน hidden input
+      const hasImage = Boolean(imageBase64Input.value);
+      if (!hasImage) {
+        imageErrorMsg.classList.remove('d-none');
+      } else {
+        imageErrorMsg.classList.add('d-none');
+      }
+
+      if (!repairForm.checkValidity() || !isPhoneValid || !hasImage) {
+        repairForm.classList.add('was-validated');
+        Swal.fire({
+          icon: 'warning',
+          title: 'ข้อมูลไม่ครบถ้วนหรือไม่ถูกต้อง',
+          text: !isPhoneValid
+            ? 'กรุณากรอกเบอร์มือถือเป็นตัวเลขให้ครบ 10 หลักเท่านั้น'
+            : 'กรุณากรอกข้อมูลที่มีเครื่องหมาย * และแนบรูปภาพให้ครบถ้วน',
+          confirmButtonColor: '#2563eb'
+        });
+        return;
+      }
+
+      // เตรียม Payload ข้อมูลที่จะส่ง
+      const formData = {
+        reporterName: document.getElementById('reporterName').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        room: document.getElementById('room').value.trim(),
+        equipment: document.getElementById('equipment').value.trim(),
+        details: document.getElementById('details').value.trim(),
+        urgency: document.querySelector('input[name="urgency"]:checked').value,
+        imageBase64: imageBase64Input.value,
+        imageFileName: imageFileNameInput.value,
+        imageMimeType: imageMimeTypeInput.value
+      };
+
+      // ล็อกปุ่มป้องกันการกดซ้ำ และแสดงสถานะ Loading
+      setSubmittingState(true);
+
+      Swal.fire({
+        title: 'กำลังส่งข้อมูลแจ้งซ่อม...',
+        html: 'ระบบกำลังอัปโหลดรูปภาพไปยัง Google Drive<br>และส่งแจ้งเตือนเข้ากลุ่ม LINE',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      // กรณีที่ 1: หากเปิดผ่านลิงก์ Google Apps Script โดยตรง
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onSubmitSuccess)
+          .withFailureHandler(onSubmitFailure)
+          .submitRepairRequest(formData);
+      } 
+      // กรณีที่ 2: หากเปิดผ่าน GitHub Pages หรือโฮสต์ภายนอก จะส่งผ่าน Fetch API (POST)
+      else {
+        if (!GAS_WEB_APP_URL || GAS_WEB_APP_URL === 'PUT_YOUR_GAS_WEB_APP_URL_HERE') {
+          onSubmitFailure('กรุณานำ Web App URL ของ Google Apps Script มาใส่ในตัวแปร GAS_WEB_APP_URL ในไฟล์ index.html ก่อนใช้งานบน GitHub');
+          return;
+        }
+
+        // ใช้ Content-Type: text/plain เพื่อหลีกเลี่ยงปัญหา CORS Preflight (OPTIONS) ของ Google Apps Script
+        fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify({
+            action: 'submitRepair',
+            data: formData
+          })
+        })
+          .then(res => res.json())
+          .then(response => onSubmitSuccess(response))
+          .catch(error => onSubmitFailure(error));
+      }
+    });
+
+    function setSubmittingState(isSubmitting) {
+      if (isSubmitting) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> กำลังบันทึกและส่งแจ้งเตือน...';
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-2"></i> ส่งข้อมูลแจ้งซ่อม';
+      }
+    }
+
+    function onSubmitSuccess(response) {
+      setSubmittingState(false);
+
+      if (response && response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'แจ้งซ่อมเรียบร้อย',
+          html: `
+            <div class="text-center p-2 mt-1">
+              <p class="fs-6 fw-semibold text-success mb-2">แจ้งซ่อมเรียบร้อย ติดตามงานซ่อมได้ที่ฝ่ายพัฒนากิจกรรมสร้างสรรค์ ศสพน.</p>
+              <div class="bg-light p-2 rounded-3 small text-muted">
+                <strong>รหัสใบแจ้งซ่อม:</strong> <span class="text-primary fw-bold">${response.ticketId}</span>
+              </div>
+            </div>
+          `,
+          confirmButtonText: 'ตกลง',
+          confirmButtonColor: '#2563eb'
+        });
+
+        // รีเซ็ตฟอร์มและรูปภาพ
+        repairForm.reset();
+        repairForm.classList.remove('was-validated');
+        resetImageUpload();
+      } else {
+        onSubmitFailure(response ? response.message : 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ');
+      }
+    }
+
+    function onSubmitFailure(error) {
+      setSubmittingState(false);
+      const errMsg = typeof error === 'string' ? error : (error && error.message ? error.message : 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
+      Swal.fire({
+        icon: 'error',
+        title: 'เกิดข้อผิดพลาด',
+        text: errMsg,
+        confirmButtonColor: '#ef4444'
+      });
+    }
+  </script>
+</body>
+</html>
