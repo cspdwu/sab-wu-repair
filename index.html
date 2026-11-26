@@ -64,6 +64,27 @@
       overflow: hidden;
     }
 
+    /* Navigation Tabs */
+    .nav-pills-custom {
+      background-color: #f1f5f9;
+      padding: 6px;
+      border-radius: 14px;
+      display: inline-flex;
+      gap: 6px;
+    }
+    .nav-pills-custom .nav-link {
+      border-radius: 10px;
+      color: #475569;
+      font-weight: 500;
+      padding: 0.6rem 1.25rem;
+      transition: all 0.2s ease;
+    }
+    .nav-pills-custom .nav-link.active {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
     /* Form Controls */
     .form-label {
       font-weight: 500;
@@ -182,27 +203,6 @@
       cursor: not-allowed;
     }
 
-    /* Navigation Tabs */
-    .nav-pills-custom {
-      background-color: #f1f5f9;
-      padding: 6px;
-      border-radius: 14px;
-      display: inline-flex;
-      gap: 6px;
-    }
-    .nav-pills-custom .nav-link {
-      border-radius: 10px;
-      color: #475569;
-      font-weight: 500;
-      padding: 0.6rem 1.25rem;
-      transition: all 0.2s ease;
-    }
-    .nav-pills-custom .nav-link.active {
-      background-color: var(--primary-color);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
-    }
-
     /* Tracking Table & Status Badges */
     .table-tracking th {
       background-color: #f8fafc;
@@ -298,6 +298,24 @@
         <div class="tab-pane fade show active" id="formPane" role="tabpanel" aria-labelledby="form-tab">
           <form id="repairForm" novalidate>
             <div class="row g-3">
+                  
+              <!-- 1. ชื่อ-สกุล ผู้แจ้ง -->
+              <div class="col-md-6">
+                <label for="reporterName" class="form-label">
+                  <i class="fa-solid fa-user text-primary me-1"></i> ชื่อ-สกุล ผู้แจ้ง <span class="required-star">*</span>
+                </label>
+                <input type="text" class="form-control" id="reporterName" name="reporterName" placeholder="ระบุชื่อ-นามสกุลจริง" required>
+                <div class="invalid-feedback">กรุณาระบุชื่อ-สกุลผู้แจ้ง</div>
+              </div>
+
+              <!-- 2. เบอร์มือถือ 10 หลัก -->
+              <div class="col-md-6">
+                <label for="phone" class="form-label">
+                  <i class="fa-solid fa-phone text-primary me-1"></i> เบอร์มือถือ (ตัวเลข 10 หลักเท่านั้น) <span class="required-star">*</span>
+                </label>
+                <input type="tel" class="form-control" id="phone" name="phone" placeholder="กรอกตัวเลข 10 หลัก เช่น 0812345678" pattern="^[0-9]{10}$" minlength="10" maxlength="10" inputmode="numeric" required>
+                <div class="invalid-feedback">กรุณากรอกเบอร์มือถือเป็นตัวเลขให้ครบ 10 หลักเท่านั้น</div>
+              </div>
 
               <!-- 3. ห้องที่ต้องการแจ้ง -->
               <div class="col-md-6">
@@ -328,14 +346,78 @@
 
               <!-- 6. ระดับความเร่งด่วน -->
               <div class="col-12">
-                  <!-- ปุ่ม Submit -->
-                  <div class="col-12 mt-4">
-                    <button type="submit" id="submitBtn" class="btn btn-submit w-100">
-                      <i class="fa-solid fa-paper-plane me-2"></i> ส่งข้อมูลแจ้งซ่อม
-                    </button>
-                  </div>
-
+                <label class="form-label">
+                  <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i> ระดับความเร่งด่วน <span class="required-star">*</span>
+                </label>
+                <div class="urgency-selector">
+                  <label class="urgency-option">
+                    <input type="radio" name="urgency" value="ปกติ" required checked>
+                    <div class="urgency-card">
+                      <i class="fa-solid fa-circle-check text-success"></i>
+                      <span>ปกติ</span>
+                    </div>
+                  </label>
+                  <label class="urgency-option">
+                    <input type="radio" name="urgency" value="ปานกลาง" required>
+                    <div class="urgency-card">
+                      <i class="fa-solid fa-clock text-warning"></i>
+                      <span>ปานกลาง</span>
+                    </div>
+                  </label>
+                  <label class="urgency-option">
+                    <input type="radio" name="urgency" value="สูง" required>
+                    <div class="urgency-card">
+                      <i class="fa-solid fa-fire-flame-curved text-danger"></i>
+                      <span>สูง (ด่วนมาก)</span>
+                    </div>
+                  </label>
                 </div>
+              </div>
+
+              <!-- 7. แนบรูปภาพ (แปลงเป็น Base64 เก็บใน hidden input) -->
+              <div class="col-12">
+                <label class="form-label">
+                  <i class="fa-solid fa-camera text-primary me-1"></i> รูปภาพประกอบจุดที่ชำรุด <span class="required-star">*</span>
+                </label>
+                
+                <!-- File Input ซ่อนไว้ แต่สั่งคลิกผ่าน Upload Box -->
+                <input type="file" id="imageFileInput" accept="image/*" class="d-none">
+                
+                <!-- Hidden Inputs สำหรับเก็บ Base64, ชื่อไฟล์ และ MimeType -->
+                <input type="hidden" id="imageBase64" name="imageBase64" required>
+                <input type="hidden" id="imageFileName" name="imageFileName">
+                <input type="hidden" id="imageMimeType" name="imageMimeType">
+
+                <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageFileInput').click()">
+                  <div id="uploadPlaceholder">
+                    <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary mb-2"></i>
+                    <h6 class="fw-semibold mb-1">คลิกเพื่อเลือกรูปภาพ หรือถ่ายภาพ</h6>
+                    <p class="text-muted small mb-0">รองรับไฟล์ JPG, PNG (ระบบจะย่อขนาดอัตโนมัติเพื่อความรวดเร็ว)</p>
+                  </div>
+                  
+                  <div id="previewContainer" class="d-none">
+                    <img id="imagePreview" src="" alt="Preview" class="mb-2">
+                    <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
+                      <span id="fileNameDisplay" class="badge bg-secondary text-truncate" style="max-width: 220px;"></span>
+                      <button type="button" class="btn btn-sm btn-outline-danger" id="removeImageBtn">
+                        <i class="fa-solid fa-trash-can me-1"></i> เปลี่ยนรูป
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div id="imageErrorMsg" class="text-danger small mt-1 d-none">
+                  <i class="fa-solid fa-circle-exclamation me-1"></i> กรุณาแนบรูปภาพจุดที่ชำรุดก่อนส่งข้อมูล
+                </div>
+              </div>
+
+              <!-- ปุ่ม Submit -->
+              <div class="col-12 mt-4">
+                <button type="submit" id="submitBtn" class="btn btn-submit w-100">
+                  <i class="fa-solid fa-paper-plane me-2"></i> ส่งข้อมูลแจ้งซ่อม
+                </button>
+              </div>
+
+            </div>
           </form>
         </div>
 
@@ -424,7 +506,7 @@
      * ============================================================================
      * ให้นำ Web App URL ที่ได้จากการกด Deploy บน Google Apps Script (ลงท้ายด้วย /exec) มาวางที่นี่
      */
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/library/d/1g-q8ELTEogCxXgjSFYWyKX1rDpnurvn4tkMm654ujBH1uJdd7NNery7g/10';
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwziDdOOl_UKrAMTHjlL4lT1rTCz3d-lpFZmImhvF-JUdvgvq6j0_4M4cn8KmsND0xV/exec';
 
     /**
      * ============================================================================
