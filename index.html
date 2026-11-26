@@ -182,13 +182,81 @@
       cursor: not-allowed;
     }
 
+    /* Navigation Tabs */
+    .nav-pills-custom {
+      background-color: #f1f5f9;
+      padding: 6px;
+      border-radius: 14px;
+      display: inline-flex;
+      gap: 6px;
+    }
+    .nav-pills-custom .nav-link {
+      border-radius: 10px;
+      color: #475569;
+      font-weight: 500;
+      padding: 0.6rem 1.25rem;
+      transition: all 0.2s ease;
+    }
+    .nav-pills-custom .nav-link.active {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    /* Tracking Table & Status Badges */
+    .table-tracking th {
+      background-color: #f8fafc;
+      color: #334155;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+    }
+    .table-tracking td {
+      vertical-align: middle;
+      font-size: 0.92rem;
+      color: #1e293b;
+    }
+    .status-badge {
+      padding: 0.4rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .status-pending {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+    .status-progress {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+    .status-done {
+      background-color: #d1fae5;
+      color: #065f46;
+    }
+    .status-cancel {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
     @media (max-width: 576px) {
       .app-header {
         padding: 1.5rem 0 2.5rem;
       }
-      .nav-pills .nav-link {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.85rem;
+      .nav-pills-custom {
+        width: 100%;
+        display: flex;
+      }
+      .nav-pills-custom .nav-link {
+        flex: 1;
+        padding: 0.55rem 0.5rem;
+        font-size: 0.88rem;
+        text-align: center;
       }
     }
   </style>
@@ -209,27 +277,27 @@
   <main class="container main-container">
     <div class="custom-card p-3 p-md-4">
       
-      <!-- ==================== REPAIR FORM ==================== -->
-      <form id="repairForm" novalidate>
-        <div class="row g-3">
-              
-              <!-- 1. ชื่อ-สกุล ผู้แจ้ง -->
-              <div class="col-md-6">
-                <label for="reporterName" class="form-label">
-                  <i class="fa-solid fa-user text-primary me-1"></i> ชื่อ-สกุล ผู้แจ้ง <span class="required-star">*</span>
-                </label>
-                <input type="text" class="form-control" id="reporterName" name="reporterName" placeholder="ระบุชื่อ-นามสกุลจริง" required>
-                <div class="invalid-feedback">กรุณาระบุชื่อ-สกุลผู้แจ้ง</div>
-              </div>
+      <!-- Navigation Tabs -->
+      <div class="d-flex justify-content-center mb-4">
+        <ul class="nav nav-pills nav-pills-custom" id="mainTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="form-tab" data-bs-toggle="pill" data-bs-target="#formPane" type="button" role="tab" aria-controls="formPane" aria-selected="true">
+              <i class="fa-solid fa-pen-to-square me-1"></i> แจ้งซ่อมออนไลน์
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tracking-tab" data-bs-toggle="pill" data-bs-target="#trackingPane" type="button" role="tab" aria-controls="trackingPane" aria-selected="false">
+              <i class="fa-solid fa-magnifying-glass-chart me-1"></i> ติดตามการซ่อม
+            </button>
+          </li>
+        </ul>
+      </div>
 
-              <!-- 2. เบอร์มือถือ 10 หลัก -->
-              <div class="col-md-6">
-                <label for="phone" class="form-label">
-                  <i class="fa-solid fa-phone text-primary me-1"></i> เบอร์มือถือ (ตัวเลข 10 หลักเท่านั้น) <span class="required-star">*</span>
-                </label>
-                <input type="tel" class="form-control" id="phone" name="phone" placeholder="กรอกตัวเลข 10 หลัก เช่น 0812345678" pattern="^[0-9]{10}$" minlength="10" maxlength="10" inputmode="numeric" required>
-                <div class="invalid-feedback">กรุณากรอกเบอร์มือถือเป็นตัวเลขให้ครบ 10 หลักเท่านั้น</div>
-              </div>
+      <div class="tab-content" id="mainTabsContent">
+        <!-- ==================== TAB 1: REPAIR FORM ==================== -->
+        <div class="tab-pane fade show active" id="formPane" role="tabpanel" aria-labelledby="form-tab">
+          <form id="repairForm" novalidate>
+            <div class="row g-3">
 
               <!-- 3. ห้องที่ต้องการแจ้ง -->
               <div class="col-md-6">
@@ -260,79 +328,79 @@
 
               <!-- 6. ระดับความเร่งด่วน -->
               <div class="col-12">
-                <label class="form-label">
-                  <i class="fa-solid fa-triangle-exclamation text-primary me-1"></i> ระดับความเร่งด่วน <span class="required-star">*</span>
-                </label>
-                <div class="urgency-selector">
-                  <label class="urgency-option">
-                    <input type="radio" name="urgency" value="ปกติ" required checked>
-                    <div class="urgency-card">
-                      <i class="fa-solid fa-circle-check text-success"></i>
-                      <span>ปกติ</span>
-                    </div>
-                  </label>
-                  <label class="urgency-option">
-                    <input type="radio" name="urgency" value="ปานกลาง" required>
-                    <div class="urgency-card">
-                      <i class="fa-solid fa-clock text-warning"></i>
-                      <span>ปานกลาง</span>
-                    </div>
-                  </label>
-                  <label class="urgency-option">
-                    <input type="radio" name="urgency" value="สูง" required>
-                    <div class="urgency-card">
-                      <i class="fa-solid fa-fire-flame-curved text-danger"></i>
-                      <span>สูง (ด่วนมาก)</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- 7. แนบรูปภาพ (แปลงเป็น Base64 เก็บใน hidden input) -->
-              <div class="col-12">
-                <label class="form-label">
-                  <i class="fa-solid fa-camera text-primary me-1"></i> รูปภาพประกอบจุดที่ชำรุด <span class="required-star">*</span>
-                </label>
-                
-                <!-- File Input ซ่อนไว้ แต่สั่งคลิกผ่าน Upload Box -->
-                <input type="file" id="imageFileInput" accept="image/*" class="d-none">
-                
-                <!-- Hidden Inputs สำหรับเก็บ Base64, ชื่อไฟล์ และ MimeType -->
-                <input type="hidden" id="imageBase64" name="imageBase64" required>
-                <input type="hidden" id="imageFileName" name="imageFileName">
-                <input type="hidden" id="imageMimeType" name="imageMimeType">
-
-                <div class="upload-box" id="uploadBox" onclick="document.getElementById('imageFileInput').click()">
-                  <div id="uploadPlaceholder">
-                    <i class="fa-solid fa-cloud-arrow-up fa-3x text-primary mb-2"></i>
-                    <h6 class="fw-semibold mb-1">คลิกเพื่อเลือกรูปภาพ หรือถ่ายภาพ</h6>
-                    <p class="text-muted small mb-0">รองรับไฟล์ JPG, PNG (ระบบจะย่อขนาดอัตโนมัติเพื่อความรวดเร็ว)</p>
+                  <!-- ปุ่ม Submit -->
+                  <div class="col-12 mt-4">
+                    <button type="submit" id="submitBtn" class="btn btn-submit w-100">
+                      <i class="fa-solid fa-paper-plane me-2"></i> ส่งข้อมูลแจ้งซ่อม
+                    </button>
                   </div>
-                  
-                  <div id="previewContainer" class="d-none">
-                    <img id="imagePreview" src="" alt="Preview" class="mb-2">
-                    <div class="d-flex justify-content-center align-items-center gap-2 mt-2">
-                      <span id="fileNameDisplay" class="badge bg-secondary text-truncate" style="max-width: 220px;"></span>
-                      <button type="button" class="btn btn-sm btn-outline-danger" id="removeImageBtn">
-                        <i class="fa-solid fa-trash-can me-1"></i> เปลี่ยนรูป
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div id="imageErrorMsg" class="text-danger small mt-1 d-none">
-                  <i class="fa-solid fa-circle-exclamation me-1"></i> กรุณาแนบรูปภาพจุดที่ชำรุดก่อนส่งข้อมูล
-                </div>
-              </div>
 
-              <!-- ปุ่ม Submit -->
-              <div class="col-12 mt-4">
-                <button type="submit" id="submitBtn" class="btn btn-submit w-100">
-                  <i class="fa-solid fa-paper-plane me-2"></i> ส่งข้อมูลแจ้งซ่อม
-                </button>
-              </div>
+                </div>
+          </form>
+        </div>
 
+        <!-- ==================== TAB 2: TRACKING ==================== -->
+        <div class="tab-pane fade" id="trackingPane" role="tabpanel" aria-labelledby="tracking-tab">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+            <div>
+              <h5 class="fw-bold mb-0 text-primary">
+                <i class="fa-solid fa-list-check me-2"></i>รายการติดตามสถานะการซ่อม
+              </h5>
+              <small class="text-muted">อัปเดตข้อมูลล่าสุดจากฐานข้อมูลฝ่ายพัฒนากิจกรรมสร้างสรรค์ ศสพน.</small>
             </div>
-      </form>
+            <button type="button" id="refreshTrackingBtn" class="btn btn-outline-primary btn-sm rounded-3 align-self-start align-self-md-center">
+              <i class="fa-solid fa-rotate-right me-1"></i> รีเฟรชข้อมูล
+            </button>
+          </div>
+
+          <!-- Search & Filter -->
+          <div class="row g-2 mb-3">
+            <div class="col-md-8">
+              <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="fa-solid fa-search text-muted"></i></span>
+                <input type="text" id="trackingSearchInput" class="form-control border-start-0" placeholder="ค้นหาด้วยรหัสงาน, ห้อง/สถานที่ หรืออาการชำรุด...">
+              </div>
+            </div>
+            <div class="col-md-4">
+              <select id="trackingStatusFilter" class="form-select">
+                <option value="">สถานะทั้งหมด</option>
+                <option value="รอดำเนินการ">รอดำเนินการ</option>
+                <option value="กำลังดำเนินการ">กำลังดำเนินการ</option>
+                <option value="เสร็จสิ้น">เสร็จสิ้น / ซ่อมแล้ว</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div id="trackingLoading" class="text-center py-5 d-none">
+            <div class="spinner-border text-primary mb-2" role="status"></div>
+            <p class="text-muted mb-0">กำลังโหลดข้อมูลรายการแจ้งซ่อม...</p>
+          </div>
+
+          <!-- Data Table -->
+          <div class="table-responsive rounded-3 border" id="trackingTableWrapper">
+            <table class="table table-hover table-tracking mb-0">
+              <thead>
+                <tr>
+                  <th>รหัสงานที่แจ้ง</th>
+                  <th>วันที่แจ้ง</th>
+                  <th>ห้อง / สถานที่</th>
+                  <th>อาการชำรุด</th>
+                  <th class="text-center">สถานะการซ่อม</th>
+                </tr>
+              </thead>
+              <tbody id="trackingTableBody">
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">กำลังเตรียมข้อมูล...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mt-2">
+            <small class="text-muted" id="trackingCountText">แสดงทั้งหมด 0 รายการ</small>
+          </div>
+        </div>
+      </div>
 
     </div>
   </main>
@@ -356,7 +424,7 @@
      * ============================================================================
      * ให้นำ Web App URL ที่ได้จากการกด Deploy บน Google Apps Script (ลงท้ายด้วย /exec) มาวางที่นี่
      */
-    const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwziDdOOl_UKrAMTHjlL4lT1rTCz3d-lpFZmImhvF-JUdvgvq6j0_4M4cn8KmsND0xV/exec';
+    const GAS_WEB_APP_URL = 'https://script.google.com/macros/library/d/1g-q8ELTEogCxXgjSFYWyKX1rDpnurvn4tkMm654ujBH1uJdd7NNery7g/10';
 
     /**
      * ============================================================================
@@ -618,6 +686,153 @@
         text: errMsg,
         confirmButtonColor: '#ef4444'
       });
+    }
+
+    /**
+     * ============================================================================
+     * 3. TRACKING TAB (ดึงข้อมูลจาก Google Sheets มาแสดงผล)
+     * ============================================================================
+     */
+    const trackingTabBtn = document.getElementById('tracking-tab');
+    const refreshTrackingBtn = document.getElementById('refreshTrackingBtn');
+    const trackingSearchInput = document.getElementById('trackingSearchInput');
+    const trackingStatusFilter = document.getElementById('trackingStatusFilter');
+    const trackingLoading = document.getElementById('trackingLoading');
+    const trackingTableWrapper = document.getElementById('trackingTableWrapper');
+    const trackingTableBody = document.getElementById('trackingTableBody');
+    const trackingCountText = document.getElementById('trackingCountText');
+
+    let allRepairRecords = [];
+
+    // โหลดข้อมูลเมื่อกดแท็บ "ติดตามการซ่อม" หรือกดปุ่ม "รีเฟรชข้อมูล"
+    trackingTabBtn.addEventListener('shown.bs.tab', function() {
+      loadRepairTrackingData();
+    });
+
+    refreshTrackingBtn.addEventListener('click', function() {
+      loadRepairTrackingData();
+    });
+
+    trackingSearchInput.addEventListener('input', renderFilteredTrackingTable);
+    trackingStatusFilter.addEventListener('change', renderFilteredTrackingTable);
+
+    function loadRepairTrackingData() {
+      trackingLoading.classList.remove('d-none');
+      trackingTableWrapper.classList.add('d-none');
+      refreshTrackingBtn.disabled = true;
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onTrackingDataLoaded)
+          .withFailureHandler(onTrackingDataError)
+          .getRepairRequests();
+      } else {
+        const fetchUrl = GAS_WEB_APP_URL + '?action=getRepairList&t=' + new Date().getTime();
+        fetch(fetchUrl)
+          .then(res => res.json())
+          .then(response => onTrackingDataLoaded(response))
+          .catch(error => onTrackingDataError(error));
+      }
+    }
+
+    function onTrackingDataLoaded(response) {
+      trackingLoading.classList.add('d-none');
+      trackingTableWrapper.classList.remove('d-none');
+      refreshTrackingBtn.disabled = false;
+
+      if (response && response.success) {
+        allRepairRecords = response.data || [];
+        renderFilteredTrackingTable();
+      } else {
+        onTrackingDataError(response ? response.message : 'ไม่สามารถโหลดข้อมูลได้');
+      }
+    }
+
+    function onTrackingDataError(error) {
+      trackingLoading.classList.add('d-none');
+      trackingTableWrapper.classList.remove('d-none');
+      refreshTrackingBtn.disabled = false;
+
+      const errMsg = typeof error === 'string' ? error : (error && error.message ? error.message : 'เกิดข้อผิดพลาดในการเชื่อมต่อ');
+      trackingTableBody.innerHTML = `
+        <tr>
+          <td colspan="5" class="text-center text-danger py-4">
+            <i class="fa-solid fa-circle-exclamation me-1"></i> ${escapeHtml(errMsg)}
+          </td>
+        </tr>
+      `;
+      trackingCountText.textContent = 'แสดงทั้งหมด 0 รายการ';
+    }
+
+    function renderFilteredTrackingTable() {
+      const keyword = trackingSearchInput.value.trim().toLowerCase();
+      const statusFilter = trackingStatusFilter.value.trim();
+
+      const filtered = allRepairRecords.filter(item => {
+        const matchKeyword = !keyword ||
+          String(item.ticketId).toLowerCase().includes(keyword) ||
+          String(item.room).toLowerCase().includes(keyword) ||
+          String(item.equipment).toLowerCase().includes(keyword) ||
+          String(item.details).toLowerCase().includes(keyword);
+
+        const matchStatus = !statusFilter || String(item.status).includes(statusFilter);
+        return matchKeyword && matchStatus;
+      });
+
+      trackingCountText.textContent = `แสดงทั้งหมด ${filtered.length} รายการ`;
+
+      if (filtered.length === 0) {
+        trackingTableBody.innerHTML = `
+          <tr>
+            <td colspan="5" class="text-center text-muted py-4">
+              <i class="fa-regular fa-folder-open fa-lg d-block mb-2"></i>
+              ไม่พบข้อมูลรายการแจ้งซ่อม
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      trackingTableBody.innerHTML = filtered.map(item => {
+        const badgeHtml = getStatusBadgeHtml(item.status);
+        const issueText = item.equipment
+          ? `<div class="fw-semibold text-dark">${escapeHtml(item.equipment)}</div><div class="small text-muted">${escapeHtml(item.details)}</div>`
+          : escapeHtml(item.details);
+
+        return `
+          <tr>
+            <td class="fw-bold text-primary text-nowrap">${escapeHtml(item.ticketId)}</td>
+            <td class="text-nowrap small">${escapeHtml(item.timestamp)}</td>
+            <td>${escapeHtml(item.room)}</td>
+            <td>${issueText}</td>
+            <td class="text-center">${badgeHtml}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getStatusBadgeHtml(status) {
+      const s = String(status || 'รอดำเนินการ').trim();
+      if (s.includes('เสร็จ') || s.includes('เรียบร้อย') || s.includes('ซ่อมแล้ว')) {
+        return `<span class="status-badge status-done"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(s)}</span>`;
+      }
+      if (s.includes('กำลัง')) {
+        return `<span class="status-badge status-progress"><i class="fa-solid fa-screwdriver-wrench"></i> ${escapeHtml(s)}</span>`;
+      }
+      if (s.includes('ยกเลิก') || s.includes('ไม่สำเร็จ')) {
+        return `<span class="status-badge status-cancel"><i class="fa-solid fa-circle-xmark"></i> ${escapeHtml(s)}</span>`;
+      }
+      return `<span class="status-badge status-pending"><i class="fa-solid fa-clock"></i> ${escapeHtml(s)}</span>`;
+    }
+
+    function escapeHtml(text) {
+      if (text === null || text === undefined) return '-';
+      return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
   </script>
 </body>
