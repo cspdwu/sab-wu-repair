@@ -809,8 +809,16 @@
           .withFailureHandler(onTrackingDataError)
           .getRepairRequests();
       } else {
-        const fetchUrl = GAS_WEB_APP_URL + '?action=getRepairList&t=' + new Date().getTime();
-        fetch(fetchUrl)
+        // ใช้ POST request เพื่อดึงข้อมูลล่าสุดโดยไม่ติด Cache ของเบราว์เซอร์/Google
+        fetch(GAS_WEB_APP_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify({
+            action: 'getRepairList'
+          })
+        })
           .then(res => res.json())
           .then(response => onTrackingDataLoaded(response))
           .catch(error => onTrackingDataError(error));
