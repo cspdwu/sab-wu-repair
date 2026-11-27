@@ -540,13 +540,13 @@
         return;
       }
 
-      // ใช้ FileReader และ Canvas ย่อขนาดภาพไม่ให้เกิน 1280px เพื่อความรวดเร็วในการส่งเข้า GAS
+      // ใช้ FileReader และ Canvas ย่อขนาดภาพไม่ให้เกิน 800px เพื่อความรวดเร็วในการส่งเข้า GAS
       const reader = new FileReader();
       reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-          const MAX_WIDTH = 1280;
-          const MAX_HEIGHT = 1280;
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
           let width = img.width;
           let height = img.height;
 
@@ -568,9 +568,9 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          // แปลงเป็น Base64 (JPEG คุณภาพ 85%)
+          // แปลงเป็น Base64 (JPEG คุณภาพ 75%)
           const mimeType = 'image/jpeg';
-          const dataUrl = canvas.toDataURL(mimeType, 0.85);
+          const dataUrl = canvas.toDataURL(mimeType, 0.75);
 
           // เก็บค่าลงใน Hidden Input
           imageBase64Input.value = dataUrl;
@@ -707,6 +707,7 @@
         // ใช้ Content-Type: text/plain เพื่อหลีกเลี่ยงปัญหา CORS Preflight (OPTIONS) ของ Google Apps Script
         fetch(GAS_WEB_APP_URL, {
           method: 'POST',
+          redirect: 'follow',
           headers: {
             'Content-Type': 'text/plain;charset=utf-8'
           },
@@ -715,7 +716,12 @@
             data: formData
           })
         })
-          .then(res => res.json())
+          .then(res => {
+            if (!res.ok) {
+              throw new Error('HTTP Status ' + res.status);
+            }
+            return res.json();
+          })
           .then(response => onSubmitSuccess(response))
           .catch(error => onSubmitFailure(error));
       }
@@ -812,6 +818,7 @@
         // ใช้ POST request เพื่อดึงข้อมูลล่าสุดโดยไม่ติด Cache ของเบราว์เซอร์/Google
         fetch(GAS_WEB_APP_URL, {
           method: 'POST',
+          redirect: 'follow',
           headers: {
             'Content-Type': 'text/plain;charset=utf-8'
           },
